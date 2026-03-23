@@ -67,6 +67,69 @@ app.post ('/login', (req,res)=>{
     })
 })
 
+app.post('/expenses', authenticate, (req, res) => {
+
+  const { amount, category, description, date } = req.body;
+
+  if (!amount || !category || !date) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  
+  const query = `
+    INSERT INTO expenses (user_id, amount, category, description, date)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  db.query(
+    query,
+    [req.userId, amount, category, description, date],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Error adding expense' });
+      }
+
+      res.status(201).json({ message: 'Expense added successfully' });
+    }
+  )
+})
+
+app.get('/expenses', authenticate,(req,res)=>{
+
+    const {filter,startDate,endDate} = req.query
+
+
+    let query = 'SELECT * FROM expenses WHERE user_id = ?'
+
+    let values = [req.userId]
+
+    if(filter === 'week'){
+        query += 'AND date >= DATE_SUB(NOW(),INTERVAL 7 DAY'
+    }
+
+    else if(filter === 'month'){
+        query += 'AND date >= DATE_SUB(NOW(),INTERVAL 1 MONTH'
+
+    }else if(filter === '3months'){
+        query += 'AND date >= DATE_SUB(NOW(),INTERVAL 3 MONTH'
+    }
+
+    else if(filter === 'custom' && startDate && endDate){
+        query += 'AND date BETWEEN ? AND ?'
+        values.push(startDate, endDate)
+    }
+
+    db.query(query,values,(err,results)=>{
+        if(err){
+            console.log(err)
+            return res.status(500).json({message:'Error fetching expenses'})
+        }
+
+        res.json(results)
+    })
+})
+
 
 app.listen(3000,()=>{
     console.log('Server running')

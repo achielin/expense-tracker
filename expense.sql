@@ -22,3 +22,5 @@ CREATE TABLE expenses (
 SELECT * FROM users;
 
 DELETE FROM users;
+
+SELECT * FROM expenses;
