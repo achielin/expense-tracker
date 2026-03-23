@@ -1,0 +1,24 @@
+CREATE DATABASE expense_db;
+USE expense_db
+
+
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL
+);
+
+
+CREATE TABLE expenses (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  description VARCHAR(255),
+  date DATE NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+SELECT * FROM users;
+
+DELETE FROM users;
