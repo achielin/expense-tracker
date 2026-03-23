@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 require('dotenv').config()
 
+const authenticate = require('./middleware/auth')
+
 
 const app = express()
 app.use(express.json())
