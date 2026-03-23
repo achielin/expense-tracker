@@ -131,6 +131,79 @@ app.get('/expenses', authenticate,(req,res)=>{
 })
 
 
+app.patch('/expenses/:id',authenticate, (req,res)=>{
+
+    const expenseId = req.params.id
+    const {amount,category,description,date} = req.body
+
+    let updates = []
+    let values = []
+
+    if(amount){
+        updates.push('amount = ?')
+        values.push(amount)
+
+    }
+    
+    if(category){
+        updates.push('category = ?')
+        values.push(category)
+    }
+
+    if(description){
+        updates.push('description = ?')
+        values.push(description)
+    }
+
+    if(date){
+        updates.push('date = ?')
+        values.push(date)
+    }
+
+    if(updates.length === 0){
+        return res.status(400).json({message:'No fields to update'})
+
+    }
+    values.push(req.userId,expenseId)
+
+    const query = `
+    UPDATE expenses
+    SET ${updates.join(' ,')}
+    WHERE user_id = ? AND id = ?`
+
+    db.query(query, values,(err,result)=>{
+        if(err){
+            console.log(err)
+            return res.status(500).json({message:'Error updating expense'})
+        }
+
+        if(result.affectedRows === 0){
+            return res.status(404).json({message:'Expense not found'})
+        }
+        res.json({message:'Expense updated successfully'})
+    })
+    
+})
+
+app.delete('/expense/:id',authenticate,(req,res)=>{
+
+    const expenseId = req.params.id
+
+    const query = 'DELETE FROM expenses WHERE user_id = ? AND id = ?'
+
+    db.query(query,[req.userId,expenseId],(err,result)=>{
+        if(err){
+            console.log(err)
+            return res.status(500).json({message:'Error deleting expense'})
+        }
+        if(result.affectedRows === 0){
+            return res.status(404).json({message:'Expense not found'})
+        }
+        res.json({message:'Expense deleted successfully'})
+    })
+})
+
+
 app.listen(3000,()=>{
     console.log('Server running')
 })
