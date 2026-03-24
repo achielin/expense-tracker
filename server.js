@@ -185,23 +185,25 @@ app.patch('/expenses/:id',authenticate, (req,res)=>{
     
 })
 
-app.delete('/expense/:id',authenticate,(req,res)=>{
+app.delete('/expenses/:id', authenticate, (req, res) => {
 
-    const expenseId = req.params.id
+  const expenseId = Number(req.params.id); 
 
-    const query = 'DELETE FROM expenses WHERE user_id = ? AND id = ?'
+  const query = 'DELETE FROM expenses WHERE user_id = ? AND id = ?';
 
-    db.query(query,[req.userId,expenseId],(err,result)=>{
-        if(err){
-            console.log(err)
-            return res.status(500).json({message:'Error deleting expense'})
-        }
-        if(result.affectedRows === 0){
-            return res.status(404).json({message:'Expense not found'})
-        }
-        res.json({message:'Expense deleted successfully'})
-    })
-})
+  db.query(query, [req.userId, expenseId], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ message: 'Error deleting expense' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Expense not found' });
+    }
+
+    res.json({ message: 'Expense deleted successfully' });
+  });
+});
 
 
 app.listen(3000,()=>{
